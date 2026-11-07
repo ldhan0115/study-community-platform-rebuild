@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: study-community-platform
+
+server:
+  port: 8080
+
