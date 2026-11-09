@@ -11,8 +11,12 @@ spring:
     password: ${DB_PASSWORD}
 
   jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
     hibernate:
-      ddl-auto: none
+      ddl-auto: validate
     open-in-view: false
 
   flyway:
