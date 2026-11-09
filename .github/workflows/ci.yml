@@ -14,6 +14,28 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      DB_PASSWORD: ci_only_password
+
+    services:
+      mysql:
+        image: mysql:8.4
+
+        env:
+          MYSQL_DATABASE: study_community
+          MYSQL_USER: study
+          MYSQL_PASSWORD: ci_only_password
+          MYSQL_ROOT_PASSWORD: ci_only_root_password
+
+        ports:
+          - 3307:3306
+
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 --silent"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
