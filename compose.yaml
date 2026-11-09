@@ -1,0 +1,25 @@
+services:
+  mysql:
+    image: mysql:8.4
+
+    environment:
+      MYSQL_DATABASE: study_community
+      MYSQL_USER: study
+      MYSQL_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD_required}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD_required}
+      TZ: Asia/Seoul
+
+    ports:
+      - "127.0.0.1:3307:3306"
+
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  mysql-data:
