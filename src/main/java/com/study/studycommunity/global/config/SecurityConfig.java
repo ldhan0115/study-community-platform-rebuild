@@ -17,9 +17,19 @@ public class SecurityConfig {
         http.authorizeHttpRequests(
                 auth -> auth.requestMatchers(
                                 HttpMethod.GET,
-                                "/api/health"
+                                "/api/health",
+                                "/api/auth/csrf"
                         ).permitAll()
+
+                        // 회원가입은 비로그인 사용자도 가능
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/members"
+                        ).permitAll()
+
+                        // 그 외 요청은 인증 필요
                         .anyRequest().authenticated()
+
                 // HTML 폼을 사용하는 로그인 방식을 기본 설정으로 활성화
         ).formLogin(Customizer.withDefaults());
 
