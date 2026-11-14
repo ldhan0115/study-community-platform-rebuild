@@ -2,6 +2,7 @@ package com.study.studycommunity.global.exception;
 
 import com.study.studycommunity.member.exception.DuplicateMemberException;
 import com.study.studycommunity.member.exception.InvalidMemberPasswordException;
+import com.study.studycommunity.member.exception.MemberAccessDeniedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -60,6 +61,19 @@ public class GlobalExceptionHandler {
                 "INVALID_PASSWORD",
                 exception.getMessage(),
                 "password"
+        );
+    }
+
+    // 다른 회원의 정보에 접근하려할 때 차단 처리
+    @ExceptionHandler(MemberAccessDeniedException.class)
+    public ResponseEntity<ProblemDetail> handleMemberAccessDenied(
+            MemberAccessDeniedException exception
+    ){
+        return createErrorResponse(
+                HttpStatus.FORBIDDEN,
+                "MEMBER_ACCESS_DENIED",
+                exception.getMessage(),
+                null
         );
     }
 
