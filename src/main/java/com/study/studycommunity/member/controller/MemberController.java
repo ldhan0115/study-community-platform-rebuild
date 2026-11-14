@@ -1,16 +1,18 @@
 package com.study.studycommunity.member.controller;
 
+import com.study.studycommunity.member.dto.CurrentMemberResponse;
 import com.study.studycommunity.member.dto.MemberSignupRequest;
 import com.study.studycommunity.member.dto.MemberSignupResponse;
+import com.study.studycommunity.member.dto.MemberUpdateRequest;
+import com.study.studycommunity.member.service.MemberProfileService;
 import com.study.studycommunity.member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/members")
@@ -18,7 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
     private final MemberService memberService;
+    private final MemberProfileService memberProfileService;
 
+
+    // 회원가입
     @PostMapping
     public ResponseEntity<MemberSignupResponse> signup(
             // Request DTO에 작성한 Bean Validation 규칙 적용
@@ -30,5 +35,23 @@ public class MemberController {
         return ResponseEntity
                 .status(HttpStatus.CREATED) // 201 Created
                 .body(response);
+    }
+
+    // 회원 정보 수정
+    @Transactional
+    @PutMapping("/{memberId}/profile")
+    public ResponseEntity<CurrentMemberResponse> updateProfile(
+            @PathVariable("memberId") Long memberId,
+            @Valid @RequestBody MemberUpdateRequest request,
+            Authentication authentication
+    ){
+
+        CurrentMemberResponse response = memberProfileService.updateProfile(
+                authentication.getName(),
+                memberId,
+                request
+        );
+
+        return ResponseEntity.ok(response);
     }
 }
