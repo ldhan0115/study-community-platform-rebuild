@@ -65,4 +65,10 @@ public class Member {
                 nickname);
     }
 
+    // dirty check로 인한 수정
+    public void updateProfile(String email, String nickname){
+        this.email = email;
+        this.nickname = nickname;
+    }
+
 }
