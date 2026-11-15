@@ -71,4 +71,9 @@ public class Member {
         this.nickname = nickname;
     }
 
+    // dirty check로 인한 변경
+    public void changePassword(String passwordHash){
+        this.passwordHash = passwordHash;
+    }
+
 }
