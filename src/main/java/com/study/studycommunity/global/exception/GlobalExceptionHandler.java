@@ -56,11 +56,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ProblemDetail> handleInvalidPassword(
             InvalidMemberPasswordException exception
     ){
+
         return createErrorResponse(
                 HttpStatus.BAD_REQUEST,
                 "INVALID_PASSWORD",
                 exception.getMessage(),
-                "password"
+                exception.getField()
         );
     }
 
