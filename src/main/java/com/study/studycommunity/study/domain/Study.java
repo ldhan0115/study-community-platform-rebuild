@@ -1,6 +1,7 @@
 package com.study.studycommunity.study.domain;
 
 import com.study.studycommunity.member.domain.Member;
+import com.study.studycommunity.study.exception.InvalidStudyException;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -130,38 +131,45 @@ public class Study {
     ){
 
         if(member == null){
-            throw new IllegalArgumentException(
+            throw new InvalidStudyException(
+                    "memerId",
                     "스터디 개설자는 필수입니다."
             );
         }
 
         if(title == null || title.isBlank() || title.length() > 100){
 
-            throw new IllegalArgumentException(
+            throw new InvalidStudyException(
+                    "title",
                     "스터디 제목은 1~100자여야 합니다."
             );
         }
 
-        if(description == null || description.isBlank()){
-            throw new IllegalArgumentException(
-                    "스터디 내용은 필수입니다."
+        if(description == null || description.isBlank()
+                || description.length() > 10000){
+            throw new InvalidStudyException(
+                    "description",
+                    "스터디 내용은 1~10000자여야 합니다."
             );
         }
 
         if(method == null){
-            throw new IllegalArgumentException(
+            throw new InvalidStudyException(
+                    "method",
                     "스터디 진행 방식은 필수입니다."
             );
         }
 
         if(capacity < 1 || capacity > 30){
-            throw new IllegalArgumentException(
+            throw new InvalidStudyException(
+                    "capacity",
                     "모집 인원은 1~30명이어야 합니다."
             );
         }
 
         if(method == StudyMethod.ONLINE && region != null){
-            throw new IllegalArgumentException(
+            throw new InvalidStudyException(
+                    "region",
                     "온라인 스터디는 지역을 지정할 수 없습니다."
             );
         }
@@ -169,7 +177,8 @@ public class Study {
         if(method == StudyMethod.OFFLINE &&
                 (region == null || region.isBlank() || region.length() > 100)){
 
-            throw new IllegalArgumentException(
+            throw new InvalidStudyException(
+                    "region",
                     "오프라인 스터디는 1~100자의 지역 정보가 필요합니다."
             );
 
