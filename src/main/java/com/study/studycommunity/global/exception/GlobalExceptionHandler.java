@@ -3,9 +3,11 @@ package com.study.studycommunity.global.exception;
 import com.study.studycommunity.member.exception.DuplicateMemberException;
 import com.study.studycommunity.member.exception.InvalidMemberPasswordException;
 import com.study.studycommunity.member.exception.MemberAccessDeniedException;
+import com.study.studycommunity.study.exception.InvalidStudyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -74,6 +76,34 @@ public class GlobalExceptionHandler {
                 HttpStatus.FORBIDDEN,
                 "MEMBER_ACCESS_DENIED",
                 exception.getMessage(),
+                null
+        );
+    }
+
+    // 스터디 개설 입력 값 검증 예외 처리
+    @ExceptionHandler(InvalidStudyException.class)
+    public ResponseEntity<ProblemDetail> handleInvalidStudy(
+            InvalidStudyException exception
+    ){
+
+        return createErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                "INVALID_STUDY",
+                exception.getMessage(),
+                exception.getField()
+        );
+    }
+
+    // JSON 변환 오류 처리
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ProblemDetail> handleInvalidJson(
+            HttpMessageNotReadableException exception
+    ){
+
+        return createErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                "INVALID_JSON",
+                "요청 본문의 형식 또는 값이 올바르지 않습니다.",
                 null
         );
     }
