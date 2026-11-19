@@ -1,6 +1,7 @@
 package com.study.studycommunity.study.domain;
 
 import com.study.studycommunity.member.domain.Member;
+import com.study.studycommunity.study.exception.InvalidStudyException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
@@ -233,5 +234,40 @@ class StudyTest {
         ).isInstanceOf(IllegalArgumentException.class);
     }
 
+    // 스터디 내용 10000자 초과 시 실패 테스트
+    @Test
+    void rejectsDescriptionExceeding10000Characters(){
+
+        assertThatThrownBy(() ->
+                Study.create(
+                        member,
+                        "Spring 스터디",
+                        "a".repeat(10001),
+                        StudyMethod.ONLINE,
+                        null,
+                        5
+                )
+        ).isInstanceOfSatisfying(
+                InvalidStudyException.class,
+                exception -> assertThat(exception.getField())
+                        .isEqualTo("description")
+        );
+    }
+
+    // 스터디 내용 10000자 이내로 작성 시 성공 테스트
+    @Test
+    void acceptsDescriptionWith10000Characters(){
+
+        Study study = Study.create(
+                member,
+                "Spring 스터디",
+                "a".repeat(10000),
+                StudyMethod.ONLINE,
+                null,
+                5
+        );
+
+        assertThat(study.getDescription()).hasSize(10000);
+    }
 
 }
