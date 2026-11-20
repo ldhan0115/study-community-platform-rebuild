@@ -5,6 +5,7 @@ import com.study.studycommunity.member.repository.MemberRepository;
 import com.study.studycommunity.study.domain.Study;
 import com.study.studycommunity.study.dto.StudyCreateRequest;
 import com.study.studycommunity.study.dto.StudyResponse;
+import com.study.studycommunity.study.exception.StudyNotFoundException;
 import com.study.studycommunity.study.repository.StudyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -50,5 +51,14 @@ public class StudyService {
         // 응답 DTO 변환
         return StudyResponse.from(savedStudy);
 
+    }
+
+    // 스터디 상세 조회
+    public StudyResponse getDetail(Long studyId){
+
+        Study study = studyRepository.findDetailById(studyId)
+                .orElseThrow(StudyNotFoundException::new);
+
+        return StudyResponse.from(study);
     }
 }
