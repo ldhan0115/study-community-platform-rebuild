@@ -7,10 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
@@ -40,5 +37,16 @@ public class StudyController {
         return ResponseEntity
                 .created(location) // 201반환
                 .body(response);
+    }
+
+    // 스터디 상세 조회
+    @GetMapping("/{studyId}")
+    public ResponseEntity<StudyResponse> getDetail(
+            @PathVariable("studyId") Long studyId
+    ){
+
+        StudyResponse response = studyService.getDetail(studyId);
+
+        return ResponseEntity.ok(response);
     }
 }
