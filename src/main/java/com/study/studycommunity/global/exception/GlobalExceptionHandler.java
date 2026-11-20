@@ -4,6 +4,7 @@ import com.study.studycommunity.member.exception.DuplicateMemberException;
 import com.study.studycommunity.member.exception.InvalidMemberPasswordException;
 import com.study.studycommunity.member.exception.MemberAccessDeniedException;
 import com.study.studycommunity.study.exception.InvalidStudyException;
+import com.study.studycommunity.study.exception.StudyNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -105,6 +107,35 @@ public class GlobalExceptionHandler {
                 "INVALID_JSON",
                 "요청 본문의 형식 또는 값이 올바르지 않습니다.",
                 null
+        );
+    }
+
+    // 존재하지 않는 스터디 조회 시 처리
+    @ExceptionHandler(StudyNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleStudyNotFound(
+            StudyNotFoundException exception
+    ){
+
+        return createErrorResponse(
+                HttpStatus.NOT_FOUND,
+                "STUDY_NOT_FOUND",
+                exception.getMessage(),
+                null
+        );
+
+    }
+
+    // 잘못된 URL 변수 처리
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ProblemDetail> handleTypeMismatch(
+            MethodArgumentTypeMismatchException exception
+    ){
+
+        return createErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                "INVALID_INPUT",
+                "요청 값의 형식이 올바르지 않습니다.",
+                exception.getName()
         );
     }
 

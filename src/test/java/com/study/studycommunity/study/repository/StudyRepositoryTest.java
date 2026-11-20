@@ -8,6 +8,8 @@ import com.study.studycommunity.study.domain.StudyStatus;
 import jakarta.persistence.EntityManager;
 import org.assertj.core.api.Assertions;
 import org.hibernate.Hibernate;
+import org.hibernate.SessionFactory;
+import org.hibernate.stat.Statistics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -304,6 +306,92 @@ class StudyRepositoryTest {
                 );
     }
 
+    // fetch 조인을 통해 스터디 조회 시 연관 객체 member가 같이 조회되는지 테스트
+    @Test
+    void findsStudyWithMemberUsingFetchJoin(){
+
+        // given
+        Study study = createOnlineStudy(member);
+
+        Long studyId = studyRepository.saveAndFlush(study).getId();
+
+        String nickname = member.getNickname();
+
+        entityManager.clear();
+
+        //when
+        Study found = studyRepository.findDetailById(studyId)
+                .orElseThrow();
+
+        //then
+        assertThat(Hibernate.isInitialized(found.getMember())).isTrue();
+
+        assertThat(found.getMember().getNickname()).isEqualTo(nickname);
+
+    }
+
+    // SQL 실행 횟수 비교 테스트
+    @Test
+    void fetchJoinReducesPreparedStatementCount(){
+
+        Long studyId = studyRepository.saveAndFlush(
+                createOnlineStudy(member)
+        ).getId();
+
+        String nickname = member.getNickname();
+
+        SessionFactory sessionFactory = entityManager.getEntityManagerFactory()
+                .unwrap(SessionFactory.class);
+
+        // Hibernate 내부에서 수집하는 통계 정보에 접근할 수 있는 객체
+        Statistics statistics = sessionFactory.getStatistics();
+
+        boolean previousSetting = statistics.isStatisticsEnabled();
+
+        statistics.setStatisticsEnabled(true);
+
+        try{
+
+            entityManager.clear();
+            statistics.clear();
+
+            // 기존 조회 방식
+            Study lazyStudy = studyRepository.findByIdAndDeletedAtIsNull(studyId).orElseThrow();
+
+            assertThat(lazyStudy.getMember().getNickname()).isEqualTo(nickname);
+
+            long lazyQueryCount = statistics.getPrepareStatementCount();
+
+            entityManager.clear();
+            statistics.clear();
+
+            // fetch 조인 조회 방식
+            Study fetchStudy = studyRepository.findDetailById(studyId).orElseThrow();
+
+            assertThat(fetchStudy.getMember().getNickname())
+                    .isEqualTo(nickname);
+
+            long fetchJoinQueryCount = statistics.getPrepareStatementCount();
+
+            // 비교 결과 출력
+            System.out.println(
+                    "LAZY 조회 SQL 수: " + lazyQueryCount
+            );
+
+            System.out.println(
+                    "Fetch Join 조회 SQL 수: " + fetchJoinQueryCount
+            );
+
+            assertThat(lazyQueryCount).isEqualTo(2L);
+            assertThat(fetchJoinQueryCount).isEqualTo(1L);
+        }finally {
+
+            // 다른 테스트에 영향을 주지 않도록 기존 설정 복원
+            statistics.clear();
+            statistics.setStatisticsEnabled(previousSetting);
+        }
+    }
+
     private Member createMember(){
 
         String loginId = "study_" + UUID.randomUUID()
@@ -319,6 +407,30 @@ class StudyRepositoryTest {
                         loginId
                 )
         );
+    }
+
+    // 삭제된 스터디는 조회에서 제외 테스트
+    @Test
+    void detailQueryExcludesDeletedStudy(){
+
+        // given
+        Long studyId = studyRepository.saveAndFlush(
+                createOnlineStudy(member)
+        ).getId();
+
+        jdbcTemplate.update(
+                """
+                    UPDATE study
+                    SET deleted_at = CURRENT_TIMESTAMP(6)
+                    WHERE study_id = ?
+                    """,
+                studyId
+        );
+
+        entityManager.clear();
+
+        //when & then
+        assertThat(studyRepository.findDetailById(studyId)).isEmpty();
     }
 
     private Study createOnlineStudy(Member owner){
