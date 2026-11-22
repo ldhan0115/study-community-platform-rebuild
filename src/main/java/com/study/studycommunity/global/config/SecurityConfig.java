@@ -39,7 +39,8 @@ public class SecurityConfig {
                                 HttpMethod.GET,
                                 "/api/health",
                                 "/api/auth/csrf",
-                                "/api/studies/{studyId}"
+                                "/api/studies/{studyId}",
+                                "/api/studies"
                         ).permitAll()
 
                         // 회원가입은 비로그인 사용자도 가능
