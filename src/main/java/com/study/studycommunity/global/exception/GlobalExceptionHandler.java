@@ -4,6 +4,7 @@ import com.study.studycommunity.member.exception.DuplicateMemberException;
 import com.study.studycommunity.member.exception.InvalidMemberPasswordException;
 import com.study.studycommunity.member.exception.MemberAccessDeniedException;
 import com.study.studycommunity.study.exception.InvalidStudyException;
+import com.study.studycommunity.study.exception.InvalidStudySearchException;
 import com.study.studycommunity.study.exception.StudyNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -136,6 +137,19 @@ public class GlobalExceptionHandler {
                 "INVALID_INPUT",
                 "요청 값의 형식이 올바르지 않습니다.",
                 exception.getName()
+        );
+    }
+
+    // 잘못된 스터디 검색 요청 처리
+    @ExceptionHandler(InvalidStudySearchException.class)
+    public ResponseEntity<ProblemDetail> handleInvalidStudySearch(
+            InvalidStudySearchException exception
+    ){
+        return createErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                "INVALID_INPUT",
+                exception.getMessage(),
+                exception.getField()
         );
     }
 
