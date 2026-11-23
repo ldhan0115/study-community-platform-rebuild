@@ -159,6 +159,16 @@ public class Study {
 
     }
 
+    // 스터디 삭제 (소프트 딜리트)
+    public void softDelete(){
+
+        if(this.deletedAt != null){
+            return;
+        }
+
+        this.deletedAt = LocalDateTime.now();
+    }
+
     private static void validate(
             Member member,
             String title,
