@@ -270,4 +270,101 @@ class StudyTest {
         assertThat(study.getDescription()).hasSize(10000);
     }
 
+    // 스터디 정보 수정 테스트
+    @Test
+    void updatesStudyDetails(){
+
+        // given
+        Study study = Study.create(
+                member,
+                "Spring 입문",
+                "기초 학습",
+                StudyMethod.ONLINE,
+                null,
+                5
+        );
+
+        //when
+        study.updateDetails(
+                "Spring 심화",
+                "Spring Security와 JPA 학습",
+                StudyMethod.OFFLINE,
+                "서울",
+                8,
+                StudyStatus.CLOSED
+        );
+
+        //then
+        assertThat(study.getTitle()).isEqualTo("Spring 심화");
+        assertThat(study.getMethod()).isEqualTo(StudyMethod.OFFLINE);
+        assertThat(study.getRegion()).isEqualTo("서울");
+        assertThat(study.getCapacity()).isEqualTo(8);
+        assertThat(study.getStatus()).isEqualTo(StudyStatus.CLOSED);
+
+        // 개설자는 변경 x
+        assertThat(study.getMember()).isSameAs(member);
+    }
+
+    // 잘못된 입력 값으로 수정 실패 시 기존 값 유지 테스트
+    @Test
+    void invalidUpdateDoesNotChangeExistingFields(){
+
+        // given
+        Study study = Study.create(
+                member,
+                "Spring 입문",
+                "기초 학습",
+                StudyMethod.ONLINE,
+                null,
+                5
+        );
+
+        //when
+        assertThatThrownBy(() ->
+                study.updateDetails(
+                        "잘못된 수정",
+                        "수정된 내용",
+                        StudyMethod.ONLINE,
+                        "서울",
+                        10,
+                        StudyStatus.CLOSED
+                )
+        ).isInstanceOf(IllegalArgumentException.class);
+
+        //then
+        assertThat(study.getTitle()).isEqualTo("Spring 입문");
+        assertThat(study.getDescription()).isEqualTo("기초 학습");
+        assertThat(study.getCapacity()).isEqualTo(5);
+        assertThat(study.getStatus()).isEqualTo(StudyStatus.OPEN);
+    }
+
+    // 스터디 정보 수정 시 모집 상태 누락하면 실패 테스트
+    @Test
+    void rejectsMissingStatusWhenUpdating(){
+
+        // given
+        Study study = Study.create(
+                member,
+                "Spring 입문",
+                "기초 학습",
+                StudyMethod.ONLINE,
+                null,
+                5
+        );
+
+        //when & then
+        assertThatThrownBy(() ->
+                study.updateDetails(
+                        "Spring 심화",
+                        "스터디 내용",
+                        StudyMethod.ONLINE,
+                        null,
+                        5,
+                        null
+                )
+        ).isInstanceOf(IllegalArgumentException.class);
+
+        assertThat(study.getStatus()).isEqualTo(StudyStatus.OPEN);
+    }
+
 }

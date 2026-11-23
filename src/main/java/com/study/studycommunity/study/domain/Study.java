@@ -121,6 +121,44 @@ public class Study {
         );
     }
 
+    // dirty checking을 통한 수정
+    public void updateDetails(
+            String title,
+            String description,
+            StudyMethod method,
+            String region,
+            int capacity,
+            StudyStatus status
+    ){
+
+        // 기존 검증 재사용
+        validate(
+                this.member,
+                title,
+                description,
+                method,
+                region,
+                capacity
+        );
+
+        // 수정 시 모집 상태도 필수
+        if(status == null){
+            throw new InvalidStudyException(
+                    "status",
+                    "모집 상태는 필수입니다."
+            );
+        }
+
+        // 검증 통과 후 상태 변경
+        this.title = title;
+        this.description = description;
+        this.method = method;
+        this.region = region;
+        this.capacity = capacity;
+        this.status = status;
+
+    }
+
     private static void validate(
             Member member,
             String title,

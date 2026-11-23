@@ -5,6 +5,7 @@ import com.study.studycommunity.study.domain.StudyStatus;
 import com.study.studycommunity.study.dto.StudyCreateRequest;
 import com.study.studycommunity.study.dto.StudyPageResponse;
 import com.study.studycommunity.study.dto.StudyResponse;
+import com.study.studycommunity.study.dto.StudyUpdateRequest;
 import com.study.studycommunity.study.service.StudyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -87,6 +88,23 @@ public class StudyController {
                 page,
                 size,
                 sort
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    // 스터디 수정
+    @PutMapping("/{studyId}")
+    public ResponseEntity<StudyResponse> update(
+            @PathVariable("studyId") Long studyId,
+            @Valid @RequestBody StudyUpdateRequest request,
+            Authentication authentication
+    ){
+
+        StudyResponse response = studyService.update(
+                authentication.getName(),
+                studyId,
+                request
         );
 
         return ResponseEntity.ok(response);
