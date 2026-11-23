@@ -5,6 +5,7 @@ import com.study.studycommunity.member.exception.InvalidMemberPasswordException;
 import com.study.studycommunity.member.exception.MemberAccessDeniedException;
 import com.study.studycommunity.study.exception.InvalidStudyException;
 import com.study.studycommunity.study.exception.InvalidStudySearchException;
+import com.study.studycommunity.study.exception.StudyAccessDeniedException;
 import com.study.studycommunity.study.exception.StudyNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -152,6 +153,21 @@ public class GlobalExceptionHandler {
                 exception.getField()
         );
     }
+
+    // 권한 없는 스터디 접근에 처리
+    @ExceptionHandler(StudyAccessDeniedException.class)
+    public ResponseEntity<ProblemDetail> handleStudyAccessDenied(
+            StudyAccessDeniedException exception
+    ){
+
+        return createErrorResponse(
+                HttpStatus.FORBIDDEN,
+                "STUDY_ACCESS_DENIED",
+                exception.getMessage(),
+                null
+        );
+    }
+
 
     // HTTP 응답 객체 생성하는 중복 로직
     private ResponseEntity<ProblemDetail> createErrorResponse(

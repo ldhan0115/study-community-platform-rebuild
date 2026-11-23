@@ -5,11 +5,9 @@ import com.study.studycommunity.member.repository.MemberRepository;
 import com.study.studycommunity.study.domain.Study;
 import com.study.studycommunity.study.domain.StudyMethod;
 import com.study.studycommunity.study.domain.StudyStatus;
-import com.study.studycommunity.study.dto.StudyCreateRequest;
-import com.study.studycommunity.study.dto.StudyPageResponse;
-import com.study.studycommunity.study.dto.StudyResponse;
-import com.study.studycommunity.study.dto.StudySummaryResponse;
+import com.study.studycommunity.study.dto.*;
 import com.study.studycommunity.study.exception.InvalidStudySearchException;
+import com.study.studycommunity.study.exception.StudyAccessDeniedException;
 import com.study.studycommunity.study.exception.StudyNotFoundException;
 import com.study.studycommunity.study.repository.StudyRepository;
 import com.study.studycommunity.study.repository.StudySpecifications;
@@ -115,6 +113,48 @@ public class StudyService {
 
         // 페이징 메타데이터와 함께 반환
         return StudyPageResponse.from(responsePage);
+    }
+
+    // 스터디 수정
+    @Transactional
+    public StudyResponse update(
+            String loginId,
+            Long studyId,
+            StudyUpdateRequest request
+    ){
+
+        // 수정할 스터디 조회
+        // 삭제된 스터디는 제외
+        Study study = studyRepository.findDetailById(studyId)
+                .orElseThrow(StudyNotFoundException::new);
+
+        // 현재 인증된 회원 조회
+        Member member = memberRepository.findByLoginId(loginId)
+                .orElseThrow(() ->
+                        new AuthenticationCredentialsNotFoundException(
+                                "인증된 회원을 찾을 수 없습니다."
+                        )
+                );
+
+        // 스터디 개설자 권한 검증
+        if(!study.getMember().getId().equals(member.getId())){
+            throw new StudyAccessDeniedException();
+        }
+
+        // 스터디 값 변경
+        study.updateDetails(
+                request.title(),
+                request.description(),
+                request.method(),
+                request.region(),
+                request.capacity(),
+                request.status()
+        );
+
+        // 응답 DTO 생성
+        return StudyResponse.from(study);
+
+
     }
 
     // 페이징 및 검색 조건 검증
