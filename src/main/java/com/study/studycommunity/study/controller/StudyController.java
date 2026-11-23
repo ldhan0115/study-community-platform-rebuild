@@ -109,4 +109,19 @@ public class StudyController {
 
         return ResponseEntity.ok(response);
     }
+
+    // 스터디 삭제
+    @DeleteMapping("/{studyId}")
+    public ResponseEntity<Void> delete(
+            @PathVariable("studyId") Long studyId,
+            Authentication authentication
+    ){
+
+        studyService.delete(
+                authentication.getName(),
+                studyId
+        );
+
+        return ResponseEntity.noContent().build();
+    }
 }
