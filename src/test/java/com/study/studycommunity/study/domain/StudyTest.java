@@ -7,6 +7,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.time.LocalDateTime;
+
 import static org.assertj.core.api.Assertions.*;
 
 // 스터디 객체 단위 테스트
@@ -365,6 +367,63 @@ class StudyTest {
         ).isInstanceOf(IllegalArgumentException.class);
 
         assertThat(study.getStatus()).isEqualTo(StudyStatus.OPEN);
+    }
+
+    // 스터디 논리 삭제 시 삭제 시간에 값 입력 확인 테스트
+    @Test
+    void softDeleteRecordsDeletionTime(){
+
+        // given
+        Study study = Study.create(
+                member,
+                "Spring 스터디",
+                "Spring 학습",
+                StudyMethod.ONLINE,
+                null,
+                5
+        );
+
+        //when
+        study.softDelete();
+
+        //then
+        assertThat(study.getDeletedAt()).isNotNull();
+
+        // 기존 데이터는 유지
+        assertThat(study.getTitle())
+                .isEqualTo("Spring 스터디");
+
+        assertThat(study.getStatus())
+                .isEqualTo(StudyStatus.OPEN);
+
+        assertThat(study.getMember())
+                .isSameAs(member);
+    }
+
+    // 연속 삭제해도 삭제 시간 유지 테스트
+    @Test
+    void softDeleteDoesNotChangeDeletionTimeTwice(){
+
+        // given
+        Study study = Study.create(
+                member,
+                "Spring 스터디",
+                "Spring 학습",
+                StudyMethod.ONLINE,
+                null,
+                5
+        );
+
+        //when
+        study.softDelete();
+
+        LocalDateTime firstDeletedAt = study.getDeletedAt();
+
+        study.softDelete();
+
+        //then
+        assertThat(study.getDeletedAt())
+                .isEqualTo(firstDeletedAt);
     }
 
 }

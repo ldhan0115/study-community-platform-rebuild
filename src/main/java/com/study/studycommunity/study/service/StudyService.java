@@ -153,8 +153,35 @@ public class StudyService {
 
         // 응답 DTO 생성
         return StudyResponse.from(study);
+    }
 
+    //  스터디 삭제
+    @Transactional
+    public void delete(
+            String loginId,
+            Long studyId
+    ){
 
+        // 삭제되지 않은 스터디 조회
+        Study study = studyRepository.findDetailById(studyId)
+                .orElseThrow(StudyNotFoundException::new);
+
+        // 현재 로그인한 회원 조회
+        Member member = memberRepository.findByLoginId(loginId)
+                .orElseThrow(() ->
+                        new AuthenticationCredentialsNotFoundException(
+                                "인증된 회원을 찾을 수 없습니다."
+                        )
+                );
+
+        if(!study.getMember().getId().equals(member.getId())){
+            throw new StudyAccessDeniedException(
+                    "해당 스터디를 삭제할 권한이 없습니다."
+            );
+        }
+
+        // 논리 삭제 처리
+        study.softDelete();
     }
 
     // 페이징 및 검색 조건 검증
