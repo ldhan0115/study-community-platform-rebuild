@@ -9,11 +9,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 
 import static org.assertj.core.api.Assertions.*;
 
+@ActiveProfiles("test")
 @SpringBootTest
 @Transactional
 class MemberRepositoryTest {

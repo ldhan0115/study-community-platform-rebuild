@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
@@ -25,6 +26,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
 
+@ActiveProfiles("test")
 @SpringBootTest
 @Transactional
 class StudyRepositoryTest {
