@@ -3,7 +3,9 @@ package com.study.studycommunity.study.domain;
 import com.study.studycommunity.member.domain.Member;
 import com.study.studycommunity.study.exception.InvalidStudyException;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -17,6 +19,7 @@ import static jakarta.persistence.FetchType.LAZY;
 @Entity
 @Table(name = "study")
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Study {
 
     @Id
@@ -68,9 +71,6 @@ public class Study {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
-
-    protected Study() {
-    }
 
     public Study(Member member,
                  String title,
