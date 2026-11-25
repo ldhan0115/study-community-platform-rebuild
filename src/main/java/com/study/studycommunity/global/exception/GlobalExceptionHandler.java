@@ -1,5 +1,8 @@
 package com.study.studycommunity.global.exception;
 
+import com.study.studycommunity.application.exception.DuplicateApplicationException;
+import com.study.studycommunity.application.exception.OwnStudyApplicationException;
+import com.study.studycommunity.application.exception.StudyNotOpenException;
 import com.study.studycommunity.member.exception.DuplicateMemberException;
 import com.study.studycommunity.member.exception.InvalidMemberPasswordException;
 import com.study.studycommunity.member.exception.MemberAccessDeniedException;
@@ -163,6 +166,48 @@ public class GlobalExceptionHandler {
         return createErrorResponse(
                 HttpStatus.FORBIDDEN,
                 "STUDY_ACCESS_DENIED",
+                exception.getMessage(),
+                null
+        );
+    }
+
+    // 자신의 스터디에 신청할 경우 처리
+    @ExceptionHandler(OwnStudyApplicationException.class)
+    public ResponseEntity<ProblemDetail> handleOwnStudyApplication(
+            OwnStudyApplicationException exception
+    ){
+
+        return createErrorResponse(
+                HttpStatus.FORBIDDEN,
+                "OWN_STUDY_APPLICATION",
+                exception.getMessage(),
+                null
+        );
+    }
+
+    // 모집 마감인 스터디에 신청할 경우 처리
+    @ExceptionHandler(StudyNotOpenException.class)
+    public ResponseEntity<ProblemDetail> handleStudyNotOpen(
+            StudyNotOpenException exception
+    ) {
+
+        return createErrorResponse(
+                HttpStatus.CONFLICT,
+                "STUDY_NOT_OPEN",
+                exception.getMessage(),
+                null
+        );
+    }
+
+    // 같은 스터디에 중복 신청할 경우 처리
+    @ExceptionHandler(DuplicateApplicationException.class)
+    public ResponseEntity<ProblemDetail> handleDuplicateApplication(
+            DuplicateApplicationException exception
+    ) {
+
+        return createErrorResponse(
+                HttpStatus.CONFLICT,
+                "DUPLICATE_APPLICATION",
                 exception.getMessage(),
                 null
         );
