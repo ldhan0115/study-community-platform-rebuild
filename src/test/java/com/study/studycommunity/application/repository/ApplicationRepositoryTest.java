@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
@@ -400,6 +402,62 @@ class ApplicationRepositoryTest {
         ).isInstanceOf(DataIntegrityViolationException.class);
     }
 
+    // 개설자용 스터디 신청 목록 조회 시 신청자 함께 로딩되는지 확인 테스트
+    @Test
+    void studyApplicationPageLoadsMemberWithEntityGraph(){
+
+        // given
+        createApplication(
+                applicant,
+                study,
+                "참가 신청합니다."
+        );
+
+        entityManager.clear();
+
+        // when
+        Page<Application> result = applicationRepository.findPageByStudyId(
+                study.getId(),
+                PageRequest.of(0, 10)
+        );
+
+        // then
+        assertThat(result.getContent()).hasSize(1);
+
+        Application found = result.getContent().get(0);
+
+        assertThat(Hibernate.isInitialized(found.getMember())).isTrue();
+
+    }
+
+    // 내 신청 목록 조회 시 해당 스터디 함께 로딩 되는지 확인 테스트
+    @Test
+    void myApplicationPageLoadsStudiesWithEntityGraph() {
+
+        // given
+        createApplication(
+                applicant,
+                study,
+                "참가 신청합니다."
+        );
+
+        entityManager.clear();
+
+        // when
+        Page<Application> result =
+                applicationRepository.findPageByMemberId(
+                        applicant.getId(),
+                        PageRequest.of(0, 10)
+                );
+
+        // then
+        assertThat(result.getContent()).hasSize(1);
+
+        Application found = result.getContent().get(0);
+
+        assertThat(Hibernate.isInitialized(found.getStudy()))
+                .isTrue();
+    }
 
     private Member createMember() {
 
