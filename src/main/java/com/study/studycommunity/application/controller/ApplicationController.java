@@ -1,7 +1,9 @@
 package com.study.studycommunity.application.controller;
 
 import com.study.studycommunity.application.dto.ApplicationCreateRequest;
+import com.study.studycommunity.application.dto.ApplicationPageResponse;
 import com.study.studycommunity.application.dto.ApplicationResponse;
+import com.study.studycommunity.application.dto.StudyApplicationItemResponse;
 import com.study.studycommunity.application.service.ApplicationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,29 @@ public class ApplicationController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
+    }
+
+    // 개설자의 참가 목록 조회
+    @GetMapping
+    public ResponseEntity
+            <ApplicationPageResponse
+                    <StudyApplicationItemResponse>> getStudyApplications(
+                            @PathVariable("studyId") Long studyId,
+                            @RequestParam(defaultValue = "0") int page,
+                            @RequestParam(defaultValue = "10") int size,
+                            @RequestParam(defaultValue = "latest") String sort,
+                            Authentication authentication
+    ){
+
+        ApplicationPageResponse<StudyApplicationItemResponse> response = applicationService.getStudyApplications(
+                authentication.getName(),
+                studyId,
+                page,
+                size,
+                sort
+        );
+
+        return ResponseEntity.ok(response);
     }
 
 

@@ -1,6 +1,7 @@
 package com.study.studycommunity.global.exception;
 
 import com.study.studycommunity.application.exception.DuplicateApplicationException;
+import com.study.studycommunity.application.exception.InvalidApplicationQueryException;
 import com.study.studycommunity.application.exception.OwnStudyApplicationException;
 import com.study.studycommunity.application.exception.StudyNotOpenException;
 import com.study.studycommunity.member.exception.DuplicateMemberException;
@@ -208,6 +209,20 @@ public class GlobalExceptionHandler {
         return createErrorResponse(
                 HttpStatus.CONFLICT,
                 "DUPLICATE_APPLICATION",
+                exception.getMessage(),
+                null
+        );
+    }
+
+    // 잘못된 조회 조건 처리
+    @ExceptionHandler(InvalidApplicationQueryException.class)
+    public ResponseEntity<ProblemDetail> handleInvalidApplicationQuery(
+            InvalidApplicationQueryException exception
+    ){
+
+        return createErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                "INVALID_APPLICATION_QUERY",
                 exception.getMessage(),
                 null
         );

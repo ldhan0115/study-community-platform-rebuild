@@ -49,6 +49,13 @@ public class SecurityConfig {
                                 "/api/members"
                         ).permitAll()
 
+                        // 신청 목록은 반드시 로그인 필요
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/studies/{studyId}/applications",
+                                "/api/applications/me"
+                        ).authenticated()
+
                         // 그 외 요청은 인증 필요
                         .anyRequest().authenticated()
 
